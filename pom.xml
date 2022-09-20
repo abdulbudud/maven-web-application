@@ -104,7 +104,7 @@
 	    
 	    <snapshotRepository>
 	      <id>nexus</id>
-	      <name>Abdul Wadood Snapshot Nexus Repository </name>
+	      <name>Abdul Wadood Snapshot Nexus Repository Storage war </name>
 	      <url>http://3.110.130.240:8081/repository/wallmart-snapshot/</url>
 	    </snapshotRepository>
 	    

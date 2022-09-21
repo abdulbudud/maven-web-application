@@ -1,0 +1,40 @@
+pipeline
+{
+    agent any
+    tools{
+        maven "maven 3.8.1"
+    }
+    stages{
+        stage('CheckoutCode'){
+            steps{
+            checkout([$class: 'GitSCM', branches: [[name: '*/development']], extensions: [], userRemoteConfigs: [[credentialsId: '5aa738f1-bd52-4987-8c75-51613a4cdabd', url: 'https://github.com/abdulbudud/maven-web-application.git']]])
+            }
+        }
+    
+        stage('BuildCode'){
+            steps{
+            sh "mvn clean package"
+        }
+        }
+        stage('ExecuteSonarQubeReport'){
+            steps{
+            sh "mvn clean sonar:sonar"
+        }
+        }
+        stage('UploadArtifactToNexus'){
+            steps{
+            sh "mvn clean deploy"
+        }
+        }
+    }
+    post{
+        success{
+            emailext body: '''Declarative Way Artifact uploaded
+
+
+Regrds
+Abdul
+AQJ INFOTECH''', subject: 'Declarative Email', to: 'abdulbudud@gmail.com'
+        }
+    }
+}

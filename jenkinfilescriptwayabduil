@@ -1,0 +1,33 @@
+node {
+    def mavenHome = tool name: "maven 3.8.1"
+    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '3', daysToKeepStr: '', numToKeepStr: '3')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+    stage('checkoutCode'){
+git branch: 'development', credentialsId: '5aa738f1-bd52-4987-8c75-51613a4cdabd', url: 'https://github.com/abdulbudud/maven-web-application.git'        
+    }
+    stage('Build'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('ExecuteSonarQubeReport'){
+        sh "${mavenHome}/bin/mvn sonar:sonar"
+    }
+    stage('UploadArtificatIntoNexus'){
+        sh "${mavenHome}/bin/mvn deploy"
+    }
+     stage('DeployAppIntoTomcatServer'){
+         sshagent(['61ab4fde-8b52-49b7-99d1-d35d7691016a']) {
+             sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@52.66.206.154:/opt/apache-tomcat-9.0.65/webapps/" 
+             
+         }
+        
+    }
+    stage('SendEmailNotification'){
+        emailext body: '''Here is mail from jenkins server
+
+
+       Regards
+       Abdul
+       AQJ INFOTECH''', subject: 'Mail Send From Jenkins ', to: 'abdulbudud@gmail.com'
+    }
+        
+    }
+        
